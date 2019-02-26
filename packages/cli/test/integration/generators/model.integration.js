@@ -257,7 +257,7 @@ describe('model generator using --config option', () => {
 
       assert.fileContent(
         expectedModelFile,
-        /@model\({\n  settings: {\n    annotations: \[{destinationClass: 'class1', argument: 0}],\n    foreignKeys: {fk_destination: {name: 'fk_destination'}},\n    strict: false\n  }\n}\)/,
+        /@model\({\n {2}settings: {\n {4}annotations: \[{destinationClass: 'class1', argument: 0}],\n {4}foreignKeys: {fk_destination: {name: 'fk_destination'}},\n {4}strict: false\n {2}}\n}\)/,
       );
     });
   });

@@ -25,12 +25,19 @@ async function syncDevDeps() {
   const buildDeps = require(path.join(rootPath, 'packages/build/package.json'))
     .dependencies;
 
-  const masterDeps = {
-    typescript: buildDeps.typescript,
-    tslint: buildDeps.tslint,
-  };
+  const deps = [
+    'typescript',
+    'eslint',
+    '@typescript-eslint/eslint-plugin',
+    '@typescript-eslint/parser',
+    'eslint-plugin-eslint-plugin',
+  ];
+  const masterDeps = {};
+  for (const d of deps) {
+    masterDeps[d] = buildDeps[d];
+  }
 
-  // Update typescript & tslint dependencies in individual packages
+  // Update typescript & eslint dependencies in individual packages
   for (const pkg of packages) {
     const pkgFile = pkg.manifestLocation;
     updatePackageJson(pkgFile, masterDeps);
@@ -48,6 +55,12 @@ async function syncDevDeps() {
  */
 function updatePackageJson(pkgFile, masterDeps) {
   const data = readJsonFile(pkgFile);
+  const isExample = data.name.startsWith('@loopback/example-');
+
+  if (isExample && data.devDependencies && data.devDependencies.tslint) {
+    delete data.devDependencies.tslint;
+    modified = true;
+  }
   let modified = false;
   for (const dep in masterDeps) {
     if (data.devDependencies && dep in data.devDependencies) {
