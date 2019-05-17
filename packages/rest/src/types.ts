@@ -3,15 +3,24 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {Binding, BoundValue} from '@loopback/context';
-import {ResolvedRoute, RouteEntry} from './router';
-import {Request, Response} from 'express';
 import {
-  OptionsJson,
-  OptionsUrlencoded,
-  OptionsText,
+  bind,
+  BindingSpec,
+  BindingTemplate,
+  Context,
+  Handler,
+  InvocationArgs,
+  InvocationResult,
+} from '@loopback/context';
+import {
   Options,
+  OptionsJson,
+  OptionsText,
+  OptionsUrlencoded,
 } from 'body-parser';
+import {Request, Response} from 'express';
+import {RestTags} from './keys';
+import {ResolvedRoute, RouteEntry} from './router';
 
 export {Request, Response};
 
@@ -82,8 +91,6 @@ export type LogError = (
   request: Request,
 ) => void;
 
-// tslint:disable:no-any
-
 /**
  * Options for request body parsing
  * See https://github.com/expressjs/body-parser/#options
@@ -96,16 +103,34 @@ export interface RequestBodyParserOptions extends Options {
   [name: string]: unknown;
 }
 
+// tslint:disable-next-line:no-any
 export type PathParameterValues = {[key: string]: any};
-export type OperationArgs = any[];
+export type OperationArgs = InvocationArgs;
 
 /**
  * Return value of a controller method (a function implementing an operation).
  * This is a type alias for "any", used to distinguish
  * operation results from other "any" typed values.
  */
-export type OperationRetval = any;
-// tslint:enable:no-any
+export type OperationRetval = InvocationResult;
 
-export type GetFromContext = (key: string) => Promise<BoundValue>;
-export type BindElement = (key: string) => Binding;
+export interface RestAction {
+  action: Handler<HandlerContext & Context>;
+}
+
+export function asRestAction(phase?: string) {
+  const template: BindingTemplate = binding => {
+    binding.tag(RestTags.ACTION);
+    if (phase) binding.tag({[RestTags.ACTION_PHASE]: phase});
+  };
+  return template;
+}
+
+/**
+ * `@restAction` decorator to mark a provider class as RestAction
+ * @param phase Phase
+ * @param specs
+ */
+export function restAction(phase?: string, ...specs: BindingSpec[]) {
+  return bind(asRestAction(phase), ...specs);
+}
