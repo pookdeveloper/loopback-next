@@ -21,7 +21,3 @@ export * from './router';
 export * from './sequence';
 export * from './types';
 export * from './writer';
-export {HttpErrors};
-
-// export all errors from external http-errors package
-import * as HttpErrors from 'http-errors';

@@ -4,16 +4,18 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {
+  ReferenceObject,
   RequestBodyObject,
   SchemaObject,
-  ReferenceObject,
   SchemasObject,
 } from '@loopback/openapi-v3-types';
 import * as AJV from 'ajv';
 import * as debugModule from 'debug';
-import * as util from 'util';
-import {HttpErrors, RestHttpErrors, RequestBody} from '..';
 import * as _ from 'lodash';
+import * as util from 'util';
+import {RequestBody} from '../body-parsers';
+import {RestHttpErrors} from '../rest-http-error';
+import {HttpErrors} from '../types';
 
 const toJsonSchema = require('openapi-schema-to-json-schema');
 const debug = debugModule('loopback:rest:validation');
