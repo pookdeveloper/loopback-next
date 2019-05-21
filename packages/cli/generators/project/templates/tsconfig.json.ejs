@@ -3,12 +3,16 @@
 <% if (project.loopbackBuild) { -%>
   "extends": "@loopback/build/config/tsconfig.common.json",
   "compilerOptions": {
-    "rootDir": "src"
+    "outDir": "dist",
+    "rootDir": "src",
+    "tsBuildInfoFile": "dist/.tsbuildinfo"
   },
   "include": ["src"]
 <% } else { -%>
   "compilerOptions": {
+    "outDir": "dist",
     "rootDir": "src",
+
 
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -16,6 +20,9 @@
     "strictNullChecks": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
+
+    "incremental": true,
+    "tsBuildInfoFile": "dist/.tsbuildinfo",
 
     "lib": ["es2018", "esnext.asynciterable"],
     "module": "commonjs",
