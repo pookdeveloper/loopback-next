@@ -1,0 +1,8 @@
+import {Entity, model} from '@loopback/repository';
+
+@model({settings: {}})
+export class HasManyModel extends Entity {
+  constructor(data?: Partial<HasManyModel>) {
+    super(data);
+  }
+}
