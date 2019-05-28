@@ -219,10 +219,9 @@ module.exports = class DiscoveryGenerator extends ArtifactGenerator {
       modelDefinition.isModelBaseBuiltin = true;
       modelDefinition.modelBaseClass = 'Entity';
       modelDefinition.className = utils.pascalCase(modelDefinition.name);
-      // These last three are so that the template doesn't error out if they aren't there
+      // These last two are so that the template doesn't error out if they aren't there
       modelDefinition.allowAdditionalProperties = true;
       modelDefinition.modelSettings = modelDefinition.settings || {};
-      modelDefinition.relations = [];
       debug(`Generating: ${modelDefinition.name}`);
 
       const fullPath = path.resolve(

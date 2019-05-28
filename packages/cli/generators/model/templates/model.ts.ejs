@@ -1,24 +1,8 @@
 <% if (isModelBaseBuiltin) { -%>
 import {<%= modelBaseClass %>, model, property} from '@loopback/repository';
-<% if (relations.length) { -%>
-import {
-<% for(let relation of relations) { -%>
-  <%= relation.relationModel %>WithRelations,
-<% } -%>
-} from '.';
-<% } -%>
 <% } else { -%>
 import {model, property} from '@loopback/repository';
-<% if (relations.length) { -%>
-import {
-<%= modelBaseClass %>,
-<% for(let relation of relations) { -%>
-  <%= relation.relationModel %>WithRelations,
-<% } -%>
-} from '.';
-<% } else { -%>
 import {<%= modelBaseClass %>} from '.';
-<% } -%>
 <% } -%>
 
 <% if (modelSettings) { -%>
@@ -51,9 +35,7 @@ export class <%= className %> extends <%= modelBaseClass %> {
 }
 
 export interface <%= className %>Relations {
-<% for(relation of relations) { -%>
-  <%= relations._.camelCase(relation.relationModel) %><%if (relation.relationType === 'hasMany') {%>s<%} %>?: <%= relation.relationModel %>WithRelations<%if (relation.relationType === 'hasMany') {%>[]<%} %>;
-<% } -%>
+
 }
 
 export type <%= className %>WithRelations = <%= className %> & <%= className %>Relations;

@@ -22,7 +22,6 @@ const basicModelFileChecks = require('../lib/file-check').basicModelFileChecks;
 // Test Sandbox
 const SANDBOX_PATH = path.resolve(__dirname, '../.sandbox');
 const DISCOVER_SANDBOX_FILES = require('../../fixtures/discover').SANDBOX_FILES;
-const SANDBOX_FILES = require('../../fixtures/models').SANDBOX_FILES;
 const sandbox = new TestSandbox(SANDBOX_PATH);
 
 // Basic CLI Input
@@ -202,143 +201,32 @@ describe('lb4 model integration', () => {
       assert.fileContent(expectedModelFile, /\[prop: string\]: any;/);
     });
 
-    context('relation interface and relation type', () => {
-      it('scaffolds empty model relation interface and relation type', async () => {
-        await testUtils
-          .executeGenerator(generator)
-          .inDir(SANDBOX_PATH, () => testUtils.givenLBProject(SANDBOX_PATH))
-          .withPrompts({
-            name: 'test',
-            propName: null,
-            modelBaseClass: 'Entity',
-            allowAdditionalProperties: false,
-            relations: [],
-          });
+    it('scaffolds empty model relation interface and relation type', async () => {
+      await testUtils
+        .executeGenerator(generator)
+        .inDir(SANDBOX_PATH, () => testUtils.givenLBProject(SANDBOX_PATH))
+        .withPrompts({
+          name: 'test',
+          propName: null,
+          modelBaseClass: 'Entity',
+          allowAdditionalProperties: false,
+        });
 
-        assert.file(expectedModelFile);
-        assert.file(expectedIndexFile);
+      assert.file(expectedModelFile);
+      assert.file(expectedIndexFile);
 
-        assert.fileContent(
-          expectedModelFile,
-          /import {Entity, model, property} from '@loopback\/repository';/,
-        );
-        assert.fileContent(
-          expectedModelFile,
-          /export type TestWithRelations = Test & TestRelations;/,
-        );
-        assert.fileContent(
-          expectedModelFile,
-          /export interface TestRelations {\n}/,
-        );
-      });
-
-      it('scaffolds model relation interface with hasOne relation', async () => {
-        await testUtils
-          .executeGenerator(generator)
-          .inDir(SANDBOX_PATH, () =>
-            testUtils.givenLBProject(SANDBOX_PATH, {
-              additionalFiles: SANDBOX_FILES,
-            }),
-          )
-          .withPrompts({
-            name: 'test',
-            propName: null,
-            modelBaseClass: 'Entity',
-            allowAdditionalProperties: false,
-            relations: [],
-            relationModel: 'HasOneModel',
-            relationType: 'hasOne',
-            repeat: false,
-          });
-
-        assert.file(expectedModelFile);
-        assert.file(expectedIndexFile);
-
-        assert.fileContent(
-          expectedModelFile,
-          /import {\n  HasOneModelWithRelations,\n} from '.';/,
-        );
-        assert.fileContent(
-          expectedModelFile,
-          /export interface TestRelations {\n  hasOneModel\?: HasOneModelWithRelations;\n}/,
-        );
-        assert.fileContent(
-          expectedModelFile,
-          /export type TestWithRelations = Test & TestRelations;/,
-        );
-      });
-
-      it('scaffolds model relation interface with hasMany relation', async () => {
-        await testUtils
-          .executeGenerator(generator)
-          .inDir(SANDBOX_PATH, () =>
-            testUtils.givenLBProject(SANDBOX_PATH, {
-              additionalFiles: SANDBOX_FILES,
-            }),
-          )
-          .withPrompts({
-            name: 'test',
-            propName: null,
-            modelBaseClass: 'Entity',
-            allowAdditionalProperties: false,
-            relations: [],
-            relationModel: 'HasManyModel',
-            relationType: 'hasMany',
-            repeat: false,
-          });
-
-        assert.file(expectedModelFile);
-        assert.file(expectedIndexFile);
-
-        assert.fileContent(
-          expectedModelFile,
-          /import {\n  HasManyModelWithRelations,\n} from '.';/,
-        );
-        assert.fileContent(
-          expectedModelFile,
-          /export interface TestRelations {\n  hasManyModels\?: HasManyModelWithRelations\[\];\n}/,
-        );
-        assert.fileContent(
-          expectedModelFile,
-          /export type TestWithRelations = Test & TestRelations;/,
-        );
-      });
-
-      it('scaffolds model relation interface with belongsTo relation', async () => {
-        await testUtils
-          .executeGenerator(generator)
-          .inDir(SANDBOX_PATH, () =>
-            testUtils.givenLBProject(SANDBOX_PATH, {
-              additionalFiles: SANDBOX_FILES,
-            }),
-          )
-          .withPrompts({
-            name: 'test',
-            propName: null,
-            modelBaseClass: 'Entity',
-            allowAdditionalProperties: false,
-            relations: [],
-            relationModel: 'BelongsToModel',
-            relationType: 'belongsTo',
-            repeat: false,
-          });
-
-        assert.file(expectedModelFile);
-        assert.file(expectedIndexFile);
-
-        assert.fileContent(
-          expectedModelFile,
-          /import {\n  BelongsToModelWithRelations,\n} from '.';/,
-        );
-        assert.fileContent(
-          expectedModelFile,
-          /export interface TestRelations {\n  belongsToModel\?: BelongsToModelWithRelations;\n}/,
-        );
-        assert.fileContent(
-          expectedModelFile,
-          /export type TestWithRelations = Test & TestRelations;/,
-        );
-      });
+      assert.fileContent(
+        expectedModelFile,
+        /import {Entity, model, property} from '@loopback\/repository';/,
+      );
+      assert.fileContent(
+        expectedModelFile,
+        /export type TestWithRelations = Test & TestRelations;/,
+      );
+      assert.fileContent(
+        expectedModelFile,
+        /export interface TestRelations {\n\n}/,
+      );
     });
 
     it('scaffolds correct files with args', async () => {

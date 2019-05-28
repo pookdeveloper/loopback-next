@@ -1,8 +1,0 @@
-import {Entity, model} from '@loopback/repository';
-
-@model({settings: {}})
-export class BelongsToModel extends Entity {
-  constructor(data?: Partial<BelongsToModel>) {
-    super(data);
-  }
-}

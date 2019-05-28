@@ -15,7 +15,6 @@ const utils = require('../../lib/utils');
 const chalk = require('chalk');
 const path = require('path');
 const stringifyObject = require('stringify-object');
-const _ = require('lodash');
 
 const PROMPT_BASE_MODEL_CLASS = 'Please select the model base class';
 const ERROR_NO_MODELS_FOUND = 'Model was not found in';
@@ -73,7 +72,6 @@ module.exports = class ModelGenerator extends ArtifactGenerator {
 
     this.artifactInfo.properties = {};
     this.artifactInfo.modelSettings = {};
-    this.artifactInfo.relations = [];
 
     this.artifactInfo.modelDir = path.resolve(
       this.artifactInfo.rootDir,
@@ -301,106 +299,6 @@ module.exports = class ModelGenerator extends ArtifactGenerator {
       })
       .catch(err => {
         debug(`Error during model strict mode prompt: ${err}`);
-        return this.exit(err);
-      });
-  }
-
-  async promptRelations() {
-    if (this.shouldExit()) return false;
-    const models = [];
-
-    // get the list of current models
-    try {
-      debug(`model list dir ${this.artifactInfo.modelDir}`);
-      const modelList = await utils.getArtifactList(
-        this.artifactInfo.modelDir,
-        'model',
-      );
-      debug(`modelList ${modelList}`);
-
-      if (modelList && modelList.length > 0) {
-        models.push(...modelList);
-        debug(`models: ${models}`);
-      }
-    } catch (err) {
-      debug(`error ${err}`);
-      return this.exit(err);
-    }
-
-    // skip if there are no other models
-    if (!models.length) return;
-
-    return this.prompt([
-      {
-        name: 'relations',
-        message: 'Is this model part of any relations?',
-        type: 'confirm',
-        default: false,
-        when: !this.artifactInfo.relations.length,
-      },
-    ])
-      .then(async relationsExist => {
-        if (!relationsExist.relations) return;
-
-        // if relations exist, get their info
-        await this._propmtRelationInfo(models);
-
-        this.log(
-          `Let's add a property to ${chalk.yellow(
-            this.artifactInfo.className,
-          )}`,
-        );
-      })
-      .catch(err => {
-        debug(`Error during model relations prompt: ${err}`);
-        return this.exit(err);
-      });
-  }
-
-  async _propmtRelationInfo(models) {
-    const relationTypes = ['hasOne', 'belongsTo', 'hasMany'];
-
-    return this.prompt([
-      {
-        name: 'relationModel',
-        message: 'Which model does it have a relation to?',
-        type: 'list',
-        choices: models,
-        validate: utils.validateClassName,
-      },
-      {
-        name: 'relationType',
-        message: 'Which type of relation is it?',
-        type: 'list',
-        choices: relationTypes,
-      },
-      {
-        name: 'repeat',
-        message: 'Are there other relations?',
-        type: 'confirm',
-        default: false,
-      },
-    ])
-      .then(async relationInfo => {
-        const relationModel = relationInfo.relationModel;
-        const relationType = relationInfo.relationType;
-        const relation = {relationModel, relationType};
-        this.artifactInfo.relations.push(relation);
-
-        if (relationInfo.repeat) {
-          // remove model so it isn't reused
-          _.pull(models, relationModel);
-          debug(`model ${relationModel} was removed from the list of models`);
-
-          return await this._propmtRelationInfo(models);
-        }
-
-        // to use _.camelCase in the ejs template
-        this.artifactInfo.relations._ = _;
-        debug(`model relations: ${this.artifactInfo.relations}`);
-      })
-      .catch(err => {
-        debug(`Error during model relation info prompt: ${err}`);
         return this.exit(err);
       });
   }
