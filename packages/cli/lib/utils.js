@@ -376,7 +376,7 @@ function validateValue(name, unallowedCharacters) {
  * @param {string} modelName
  */
 exports.getModelFileName = function(modelName) {
-  return `${_.kebabCase(modelName)}.model.ts`;
+  return `${pascalCase(modelName)}.model.ts`;
 };
 
 /**
