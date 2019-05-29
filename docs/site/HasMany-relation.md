@@ -195,7 +195,7 @@ The following code snippet shows how it would look like:
 content="/src/repositories/customer.repository.ts" %}
 
 ```ts
-import {Order, Customer} from '../models';
+import {Order, Customer, CustomerRelations} from '../models';
 import {OrderRepository} from './order.repository';
 import {
   DefaultCrudRepository,
@@ -207,7 +207,8 @@ import {inject, Getter} from '@loopback/core';
 
 export class CustomerRepository extends DefaultCrudRepository<
   Customer,
-  typeof Customer.prototype.id
+  typeof Customer.prototype.id,
+  CustomerRelations
 > {
   public readonly orders: HasManyRepositoryFactory<
     Order,

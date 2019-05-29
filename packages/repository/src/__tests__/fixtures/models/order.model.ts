@@ -29,3 +29,7 @@ export class Order extends Entity {
   @belongsTo(() => Customer)
   customerId: number;
 }
+
+export interface OrderRelations {}
+
+export type OrderWithRelations = Order & OrderRelations;

@@ -190,7 +190,7 @@ The following code snippet shows how it would look like:
 content="/src/repositories/supplier.repository.ts" %}
 
 ```ts
-import {Account, Supplier} from '../models';
+import {Account, Supplier, SupplierRelations} from '../models';
 import {AccountRepository} from './account.repository';
 import {
   DefaultCrudRepository,
@@ -202,7 +202,8 @@ import {inject, Getter} from '@loopback/core';
 
 export class SupplierRepository extends DefaultCrudRepository<
   Supplier,
-  typeof Supplier.prototype.id
+  typeof Supplier.prototype.id,
+  SupplierRelations
 > {
   public readonly account: HasOneRepositoryFactory<
     Account,

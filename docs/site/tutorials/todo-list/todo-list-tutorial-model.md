@@ -87,6 +87,10 @@ export class TodoList extends Entity {
 
   // ...constructor def...
 }
+
+export interface TodoListRelations {}
+
+export type TodoListWithRelations = TodoList & TodoListRelations;
 ```
 
 The `@hasMany()` decorator defines this property. As the decorator's name
@@ -108,6 +112,10 @@ export class Todo extends Entity {
 
   // ...constructor def...
 }
+
+export interface TodoRelations {}
+
+export type TodoWithRelations = Todo & TodoRelations;
 ```
 
 Once the models have been completely configured, it's time to move on to adding

@@ -3,9 +3,9 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {Entity, hasMany, model, property, hasOne, belongsTo} from '../../..';
-import {Order} from './order.model';
+import {belongsTo, Entity, hasMany, hasOne, model, property} from '../../..';
 import {Address} from './address.model';
+import {Order} from './order.model';
 
 @model()
 export class Customer extends Entity {
@@ -32,3 +32,7 @@ export class Customer extends Entity {
   @belongsTo(() => Customer)
   parentId?: number;
 }
+
+export interface CustomerRelations {}
+
+export type CustomerWithRelations = Customer & CustomerRelations;
