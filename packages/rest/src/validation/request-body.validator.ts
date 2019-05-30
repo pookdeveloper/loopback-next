@@ -4,16 +4,16 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {
+  ReferenceObject,
   RequestBodyObject,
   SchemaObject,
-  ReferenceObject,
   SchemasObject,
 } from '@loopback/openapi-v3-types';
 import * as AJV from 'ajv';
 import * as debugModule from 'debug';
-import * as util from 'util';
-import {HttpErrors, RestHttpErrors, RequestBody} from '..';
 import * as _ from 'lodash';
+import * as util from 'util';
+import {HttpErrors, RequestBody, RestHttpErrors} from '..';
 
 const toJsonSchema = require('openapi-schema-to-json-schema');
 const debug = debugModule('loopback:rest:validation');
@@ -141,15 +141,18 @@ function createValidator(
     schemas: globalSchemas,
   };
 
-  const ajv = new AJV(
-    Object.assign(
-      {},
-      {
-        allErrors: true,
-      },
-      options,
-    ),
+  // See https://github.com/epoberezkin/ajv#options
+  options = Object.assign(
+    {},
+    {
+      allErrors: true,
+      // nullable: support keyword "nullable" from Open API 3 specification.
+      nullable: true,
+    },
+    options,
   );
+  debug('AJV options', options);
+  const ajv = new AJV(options);
 
   return ajv.compile(schemaWithRef);
 }
