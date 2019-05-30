@@ -4,8 +4,11 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {Entity, hasMany, hasOne, model, property} from '@loopback/repository';
-import {TodoListImage} from './todo-list-image.model';
-import {Todo} from './todo.model';
+import {
+  TodoListImage,
+  TodoListImageWithRelations,
+} from './todo-list-image.model';
+import {Todo, TodoWithRelations} from './todo.model';
 
 @model()
 export class TodoList extends Entity {
@@ -37,6 +40,9 @@ export class TodoList extends Entity {
   }
 }
 
-export interface TodoListRelations {}
+export interface TodoListRelations {
+  todos?: TodoWithRelations[];
+  image?: TodoListImageWithRelations;
+}
 
 export type TodoListWithRelations = TodoList & TodoListRelations;

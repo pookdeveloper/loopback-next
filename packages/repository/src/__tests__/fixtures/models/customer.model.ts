@@ -4,7 +4,7 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {belongsTo, Entity, hasMany, hasOne, model, property} from '../../..';
-import {Address} from './address.model';
+import {Address, AddressWithRelations} from './address.model';
 import {Order} from './order.model';
 
 @model()
@@ -33,6 +33,10 @@ export class Customer extends Entity {
   parentId?: number;
 }
 
-export interface CustomerRelations {}
+export interface CustomerRelations {
+  address?: AddressWithRelations;
+  customers?: CustomerWithRelations[];
+  parentCustomer?: CustomerWithRelations;
+}
 
 export type CustomerWithRelations = Customer & CustomerRelations;

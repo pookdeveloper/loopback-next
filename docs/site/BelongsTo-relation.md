@@ -67,6 +67,12 @@ export class Order extends Entity {
     super(data);
   }
 }
+
+export interface OrderRelations {
+  // describe navigational properties here
+}
+
+export type OrderWithRelations = Order & OrderRelations;
 ```
 
 The definition of the `belongsTo` relation is inferred by using the `@belongsTo`
@@ -82,6 +88,10 @@ class Order extends Entity {
   // constructor, properties, etc.
   @belongsTo(() => Customer, {keyTo: 'pk'})
   customerId: number;
+}
+
+export interface OrderRelations {
+  customer?: CustomerWithRelations;
 }
 ```
 
@@ -214,7 +224,10 @@ export class Category extends Entity {
   }
 }
 
-export interface CategoryRelations {}
+export interface CategoryRelations {
+  categories?: CategoryWithRelations[];
+  parent?: CategoryWithRelations;
+}
 
 export type CategoryWithRelations = Category & CategoryRelations;
 ```

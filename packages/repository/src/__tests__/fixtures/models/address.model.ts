@@ -4,7 +4,7 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {belongsTo, Entity, model, property} from '../../..';
-import {Customer} from './customer.model';
+import {Customer, CustomerWithRelations} from './customer.model';
 
 @model()
 export class Address extends Entity {
@@ -30,6 +30,8 @@ export class Address extends Entity {
   customerId: number;
 }
 
-export interface AddressRelations {}
+export interface AddressRelations {
+  customer?: CustomerWithRelations;
+}
 
 export type AddressWithRelations = Address & AddressRelations;

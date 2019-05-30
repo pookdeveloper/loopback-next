@@ -25,6 +25,8 @@ export class Product extends Entity {
   }
 }
 
-export interface ProductRelations {}
+export interface ProductRelations {
+  // describe navigational properties here
+}
 
 export type ProductWithRelations = Product & ProductRelations;

@@ -296,6 +296,12 @@ module.exports = class ModelGenerator extends ArtifactGenerator {
         if (this.artifactInfo.allowAdditionalProperties) {
           Object.assign(this.artifactInfo.modelSettings, {strict: false});
         }
+
+        this.log(
+          `Let's add a property to ${chalk.yellow(
+            this.artifactInfo.className,
+          )}`,
+        );
       })
       .catch(err => {
         debug(`Error during model strict mode prompt: ${err}`);

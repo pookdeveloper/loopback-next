@@ -45,6 +45,8 @@ export class Todo extends Entity {
   }
 }
 
-export interface TodoRelations {}
+export interface TodoRelations {
+  // describe navigational properties here
+}
 
 export type TodoWithRelations = Todo & TodoRelations;

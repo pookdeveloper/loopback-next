@@ -4,7 +4,7 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {belongsTo, Entity, model, property} from '@loopback/repository';
-import {TodoList} from './todo-list.model';
+import {TodoList, TodoListWithRelations} from './todo-list.model';
 
 @model()
 export class TodoListImage extends Entity {
@@ -30,6 +30,8 @@ export class TodoListImage extends Entity {
   }
 }
 
-export interface TodoListImageRelations {}
+export interface TodoListImageRelations {
+  todoList?: TodoListWithRelations;
+}
 
 export type TodoListImageWithRelations = TodoListImage & TodoListImageRelations;
