@@ -122,7 +122,9 @@ the following configuration:
   },
   text: {
     limit: '2MB'
-  }
+  },
+  // Validation options for AJV, see https://github.com/epoberezkin/ajv#options
+  validation: {nullable: true},
 }
 ```
 

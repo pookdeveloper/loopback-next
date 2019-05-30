@@ -18,7 +18,14 @@ import {HttpErrors, RequestBody, RestHttpErrors} from '..';
 const toJsonSchema = require('openapi-schema-to-json-schema');
 const debug = debugModule('loopback:rest:validation');
 
-export type RequestBodyValidationOptions = AJV.Options;
+export interface RequestBodyValidationOptions extends AJV.Options {
+  /**
+   * Skip cache for AJV validators. This flag is useful to test different
+   * AJV options as the caching key is the SchemaObject/ReferenceObject without
+   * honoring options.
+   */
+  skipCache?: boolean;
+}
 
 /**
  * Check whether the request body is valid according to the provided OpenAPI schema.
@@ -28,6 +35,7 @@ export type RequestBodyValidationOptions = AJV.Options;
  * @param body - The request body parsed from an HTTP request.
  * @param requestBodySpec - The OpenAPI requestBody specification defined in `@requestBody()`.
  * @param globalSchemas - The referenced schemas generated from `OpenAPISpec.components.schemas`.
+ * @param options - Request body validation options for AJV
  */
 export function validateRequestBody(
   body: RequestBody,
@@ -55,7 +63,7 @@ export function validateRequestBody(
   }
   if (!schema) return;
 
-  options = Object.assign({coerceTypes: body.coercionRequired}, options);
+  options = Object.assign({coerceTypes: !!body.coercionRequired}, options);
   validateValueAgainstSchema(body.value, schema, globalSchemas, options);
 }
 
@@ -76,29 +84,35 @@ function convertToJsonSchema(openapiSchema: SchemaObject) {
   return jsonSchema;
 }
 
+const compiledSchemaCache = new WeakMap<
+  SchemaObject | ReferenceObject,
+  Function
+>();
+
 /**
  * Validate the request body data against JSON schema.
  * @param body - The request body data.
  * @param schema - The JSON schema used to perform the validation.
  * @param globalSchemas - Schema references.
+ * @param options - Request body validation options.
  */
-
-const compiledSchemaCache = new WeakMap();
-
 function validateValueAgainstSchema(
   // tslint:disable-next-line:no-any
   body: any,
   schema: SchemaObject | ReferenceObject,
-  globalSchemas?: SchemasObject,
-  options?: RequestBodyValidationOptions,
+  globalSchemas: SchemasObject = {},
+  options: RequestBodyValidationOptions = {},
 ) {
-  let validate;
+  // tslint:disable-next-line:no-any
+  let validate: any;
 
-  if (compiledSchemaCache.has(schema)) {
-    validate = compiledSchemaCache.get(schema);
+  if (!options.skipCache && compiledSchemaCache.has(schema)) {
+    validate = compiledSchemaCache.get(schema)!;
   } else {
     validate = createValidator(schema, globalSchemas, options);
-    compiledSchemaCache.set(schema, validate);
+    if (!options.skipCache) {
+      compiledSchemaCache.set(schema, validate);
+    }
   }
 
   if (validate(body)) {

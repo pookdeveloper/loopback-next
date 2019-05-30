@@ -4,14 +4,15 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {Binding, BoundValue} from '@loopback/context';
-import {ResolvedRoute, RouteEntry} from './router';
-import {Request, Response} from 'express';
 import {
-  OptionsJson,
-  OptionsUrlencoded,
-  OptionsText,
   Options,
+  OptionsJson,
+  OptionsText,
+  OptionsUrlencoded,
 } from 'body-parser';
+import {Request, Response} from 'express';
+import {ResolvedRoute, RouteEntry} from './router';
+import {RequestBodyValidationOptions} from './validation/request-body.validator';
 
 export {Request, Response};
 
@@ -93,6 +94,7 @@ export interface RequestBodyParserOptions extends Options {
   urlencoded?: OptionsUrlencoded;
   text?: OptionsText;
   raw?: Options;
+  validation?: RequestBodyValidationOptions;
   [name: string]: unknown;
 }
 

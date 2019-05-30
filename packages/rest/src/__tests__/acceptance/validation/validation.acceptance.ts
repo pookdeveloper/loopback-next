@@ -8,6 +8,7 @@ import {model, property} from '@loopback/repository';
 import {
   Client,
   createRestAppClient,
+  expect,
   givenHttpServerConfig,
 } from '@loopback/testlab';
 import {
@@ -16,7 +17,9 @@ import {
   jsonToSchemaObject,
   post,
   requestBody,
+  RequestBodyValidationOptions,
   RestApplication,
+  RestBindings,
   SchemaObject,
 } from '../../..';
 import {aBodySpec} from '../../helpers';
@@ -30,8 +33,10 @@ describe('Validation at REST level', () => {
     @property({required: true})
     name: string;
 
-    @property({required: false})
-    description?: string;
+    // NOTE(rfeng): We have to add `type: 'string'` to `@property` as
+    // `string | null` removes TypeScript design:type reflection
+    @property({required: false, type: 'string', jsonSchema: {nullable: true}})
+    description?: string | null;
 
     @property({required: true})
     price: number;
@@ -41,13 +46,15 @@ describe('Validation at REST level', () => {
     }
   }
 
-  const PRODUCT_SPEC = jsonToSchemaObject(getJsonSchema(Product));
+  const PRODUCT_SPEC: SchemaObject = jsonToSchemaObject(getJsonSchema(Product));
 
   // Add a schema that requires `description`
-  const PRODUCT_SPEC_WITH_DESCRIPTION = jsonToSchemaObject(
-    getJsonSchema(Product),
-  ) as SchemaObject;
-  PRODUCT_SPEC_WITH_DESCRIPTION.required!.push('description');
+  const PRODUCT_SPEC_WITH_DESCRIPTION: SchemaObject = {
+    ...PRODUCT_SPEC,
+  };
+  PRODUCT_SPEC_WITH_DESCRIPTION.required = PRODUCT_SPEC.required!.concat(
+    'description',
+  );
 
   // This is the standard use case that most LB4 applications should use.
   // The request body specification is inferred from a decorated model class.
@@ -91,6 +98,57 @@ describe('Validation at REST level', () => {
         .type('json')
         .send('null')
         .expect(400);
+    });
+  });
+
+  context('with request body validation options', () => {
+    class ProductController {
+      @post('/products')
+      async create(
+        @requestBody({required: true}) data: Product,
+      ): Promise<Product> {
+        return new Product(data);
+      }
+    }
+
+    before(() =>
+      givenAnAppAndAClient(ProductController, {
+        nullable: false,
+        skipCache: true,
+      }),
+    );
+    after(() => app.stop());
+
+    it('rejects requests with `null` with {nullable: false}', async () => {
+      const DATA = {
+        name: 'iPhone',
+        description: null,
+        price: 10,
+      };
+      const res = await client
+        .post('/products')
+        .send(DATA)
+        .expect(422);
+
+      expect(res.body).to.eql({
+        error: {
+          code: 'VALIDATION_FAILED',
+          details: [
+            {
+              code: 'type',
+              info: {
+                type: 'string',
+              },
+              message: 'should be string',
+              path: '.description',
+            },
+          ],
+          message:
+            'The request body is invalid. See error object `details` property for more info.',
+          name: 'UnprocessableEntityError',
+          statusCode: 422,
+        },
+      });
     });
   });
 
@@ -141,6 +199,9 @@ describe('Validation at REST level', () => {
     after(() => app.stop());
 
     it('accepts valid values for json', () => serverAcceptsValidRequestBody());
+
+    it('accepts valid values for json with nullable properties', () =>
+      serverAcceptsValidRequestBodyWithNull());
 
     it('accepts valid values for urlencoded', () =>
       serverAcceptsValidRequestBodyForUrlencoded());
@@ -194,6 +255,18 @@ describe('Validation at REST level', () => {
       .expect(200, DATA);
   }
 
+  async function serverAcceptsValidRequestBodyWithNull() {
+    const DATA = {
+      name: 'Pencil',
+      description: null,
+      price: 10,
+    };
+    await client
+      .post('/products')
+      .send(DATA)
+      .expect(200, DATA);
+  }
+
   async function serverAcceptsValidRequestBodyForUrlencoded() {
     const DATA =
       'name=Pencil&price=10&description=An optional description of a pencil';
@@ -226,8 +299,15 @@ describe('Validation at REST level', () => {
       .expect(422);
   }
 
-  async function givenAnAppAndAClient(controller: ControllerClass) {
+  async function givenAnAppAndAClient(
+    controller: ControllerClass,
+    validationOptions?: RequestBodyValidationOptions,
+  ) {
     app = new RestApplication({rest: givenHttpServerConfig()});
+    if (validationOptions)
+      app
+        .bind(RestBindings.REQUEST_BODY_PARSER_OPTIONS)
+        .to({validation: validationOptions});
     app.controller(controller);
     await app.start();
 

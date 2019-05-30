@@ -16,7 +16,10 @@ import {coerceParameter} from './coercion/coerce-parameter';
 import {RestHttpErrors} from './rest-http-error';
 import {ResolvedRoute} from './router';
 import {OperationArgs, PathParameterValues, Request} from './types';
-import {validateRequestBody} from './validation/request-body.validator';
+import {
+  RequestBodyValidationOptions,
+  validateRequestBody,
+} from './validation/request-body.validator';
 const debug = debugFactory('loopback:rest:parser');
 
 /**
@@ -30,6 +33,7 @@ export async function parseOperationArgs(
   request: Request,
   route: ResolvedRoute,
   requestBodyParser: RequestBodyParser = new RequestBodyParser(),
+  options: RequestBodyValidationOptions = {},
 ): Promise<OperationArgs> {
   debug('Parsing operation arguments for route %s', route.describe());
   const operationSpec = route.spec;
@@ -44,6 +48,7 @@ export async function parseOperationArgs(
     pathParams,
     body,
     route.schemas,
+    options,
   );
 }
 
@@ -53,6 +58,7 @@ function buildOperationArguments(
   pathParams: PathParameterValues,
   body: RequestBody,
   globalSchemas: SchemasObject,
+  options: RequestBodyValidationOptions = {},
 ): OperationArgs {
   let requestBodyIndex: number = -1;
   if (operationSpec.requestBody) {
@@ -80,7 +86,7 @@ function buildOperationArguments(
   }
 
   debug('Validating request body - value %j', body);
-  validateRequestBody(body, operationSpec.requestBody, globalSchemas);
+  validateRequestBody(body, operationSpec.requestBody, globalSchemas, options);
 
   if (requestBodyIndex > -1) paramArgs.splice(requestBodyIndex, 0, body.value);
   return paramArgs;
