@@ -2,10 +2,7 @@ import { BootMixin } from '@loopback/boot';
 import { ApplicationConfig } from '@loopback/core';
 import { RepositoryMixin } from '@loopback/repository';
 import { RestApplication, RestServer } from '@loopback/rest';
-import {
-  RestExplorerBindings,
-  RestExplorerComponent
-} from '@loopback/rest-explorer';
+import { RestExplorerBindings, RestExplorerComponent } from '@loopback/rest-explorer';
 import { ServiceMixin } from '@loopback/service-proxy';
 import path from 'path';
 import { MySequence } from './sequence';
@@ -29,7 +26,7 @@ export class MyCustomRestApplication extends RestApplication {
   }
 }
 
-export class PruebaApplication extends BootMixin(ServiceMixin(RepositoryMixin(RestApplication))) {
+export class PruebaApplication extends BootMixin(ServiceMixin(RepositoryMixin(MyCustomRestApplication))) {
   constructor(options: ApplicationConfig = {}) {
     super(options);
 
